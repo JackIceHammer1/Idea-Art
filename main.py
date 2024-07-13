@@ -8,23 +8,42 @@ def generate_color_and_shape():
     sentiment = blob.sentiment.polarity  # Get sentiment polarity (-1 to 1)
 
     # Determine color based on sentiment polarity
-    if sentiment > 0.5:
+    if sentiment > 0.75:
         color = 'yellow'
+    elif sentiment > 0.5:
+        color = 'orange'
+    elif sentiment > 0.25:
+        color = 'light green'
     elif sentiment > 0:
         color = 'green'
-    elif sentiment < -0.5:
+    elif sentiment > -0.25:
+        color = 'light blue'
+    elif sentiment > -0.5:
         color = 'blue'
-    elif sentiment < 0:
-        color = 'gray'
+    elif sentiment > -0.75:
+        color = 'purple'
     else:
-        color = 'white'  # Default color if sentiment is neutral
+        color = 'dark blue'
+
+    # List of possible shapes
+    shapes = {
+        'energetic': 'triangle',
+        'gentle': 'circle',
+        'strong': 'square',
+        'soft': 'ellipse',
+        'creative': 'star',
+        'confident': 'hexagon',
+        'balanced': 'octagon',
+        'playful': 'pentagon',
+        'focused': 'diamond',
+        'calm': 'oval'
+    }
 
     # Determine shape based on characteristics in the text
-    characteristics = ['energetic', 'gentle', 'strong', 'soft', 'creative']
-    shape = 'unknown'  # Default shape if no characteristics match
-    for char in characteristics:
+    shape = 'rectangle'  # Default shape if no specific characteristics match
+    for char, shape_value in shapes.items():
         if char in user_text:
-            shape = char + ' shape'
+            shape = shape_value
             break  # Exit loop on first match
 
     # Print the generated color and shape
