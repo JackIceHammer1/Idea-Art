@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import simpledialog
+from tkinter import simpledialog, ttk
 import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon, Circle, Ellipse, Rectangle
 from textblob import TextBlob
@@ -98,7 +98,7 @@ def draw_shape(color, shape, size, background_color):
     plt.show()
 
 def on_generate_button_click():
-    text = simpledialog.askstring("Input", "Describe your mood and characteristics:")
+    text = simpledialog.askstring("Input", "Describe your mood and characteristics:", parent=root)
     if text:
         color, shape, size, background_color = analyze_text_and_generate_shape(text)
         draw_shape(color, shape, size, background_color)
@@ -108,9 +108,36 @@ def on_generate_button_click():
 root = tk.Tk()
 root.title("Mood Shape Generator")
 
+# Set the main window size and center it
+window_width = 400
+window_height = 200
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+position_top = int(screen_height/2 - window_height/2)
+position_right = int(screen_width/2 - window_width/2)
+root.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
+
+# Create a frame for the content
+frame = ttk.Frame(root, padding="20")
+frame.pack(fill="both", expand=True)
+
+# Add a title label
+title_label = ttk.Label(frame, text="Mood Shape Generator", font=("Helvetica", 16, "bold"))
+title_label.pack(pady=(0, 10))
+
+# Add a description label
+description_label = ttk.Label(frame, text="Enter your mood and characteristics to generate a unique shape.")
+description_label.pack(pady=(0, 20))
+
 # Create a button to generate shape
-generate_button = tk.Button(root, text="Generate Shape", command=on_generate_button_click)
-generate_button.pack(pady=20)
+generate_button = ttk.Button(frame, text="Generate Shape", command=on_generate_button_click)
+generate_button.pack()
+
+# Apply some styling to the ttk widgets
+style = ttk.Style()
+style.configure("TButton", padding=6, relief="flat", background="#ccc")
+style.configure("TFrame", background="#eee")
+style.configure("TLabel", background="#eee")
 
 # Start the GUI event loop
 root.mainloop()
