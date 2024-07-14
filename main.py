@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import simpledialog, ttk
+from tkinter import simpledialog, ttk, Menu
 import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon, Circle, Ellipse, Rectangle
 from textblob import TextBlob
@@ -13,6 +13,7 @@ nlp = spacy.load('en_core_web_sm')
 background_colors = ['#F0E68C', '#FFD700', '#FF6347', '#4682B4', '#5F9EA0', '#DDA0DD', '#F08080', '#B0C4DE']
 
 current_figure = None
+previous_drawings = []
 
 def analyze_text_and_generate_shape(text):
     # Analyze sentiment using TextBlob
@@ -71,7 +72,7 @@ def analyze_text_and_generate_shape(text):
 
     return color, shape, size, background_color
 
-def draw_shape(color, shape, size, background_color):
+def draw_shape(color, shape, size, background_color, title=""):
     global current_figure
     if current_figure:
         plt.close(current_figure)
@@ -101,13 +102,23 @@ def draw_shape(color, shape, size, background_color):
         polygon = Rectangle((0.4, 0.4), width=size*0.2, height=size*0.1, color=color)
 
     ax.add_patch(polygon)
+    plt.title(title)
     plt.show()
 
 def on_generate_button_click():
     text = simpledialog.askstring("Input", "Describe your mood and characteristics:", parent=root)
     if text:
         color, shape, size, background_color = analyze_text_and_generate_shape(text)
-        draw_shape(color, shape, size, background_color)
+        first_sentence = TextBlob(text).sentences[0].raw if text else ""
+        previous_drawings.append((color, shape, size, background_color, first_sentence))
+        draw_shape(color, shape, size, background_color, first_sentence)
+        root.deiconify()
+
+def open_previous_drawing(index):
+    if index < len(previous_drawings):
+        color, shape, size, background_color, title = previous_drawings[index]
+        draw_shape(color, shape, size, background_color, title)
+        root.deiconify()
 
 # Create the main window
 root = tk.Tk()
@@ -144,5 +155,29 @@ style.configure("TButton", padding=6, relief="flat", background="#ccc")
 style.configure("TFrame", background="#eee")
 style.configure("TLabel", background="#eee")
 
-# Start the GUI event loop
+# Create the menu bar
+menu_bar = Menu(root)
+root.config(menu=menu_bar)
+
+# Create a menu
+file_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="File", menu=file_menu)
+
+# Add a menu item to open previous drawings
+open_menu = Menu(file_menu, tearoff=0)
+file_menu.add_cascade(label="Open Previous Drawing", menu=open_menu)
+
+def update_open_menu():
+    open_menu.delete(0, 'end')
+    for i, drawing in enumerate(previous_drawings):
+        open_menu.add_command(label=f"{i+1}: {drawing[4]}", command=lambda i=i: open_previous_drawing(i))
+
+file_menu.add_separator()
+file_menu.add_command(label="Exit", command=root.quit)
+
+# Function to update menu whenever a new drawing is added
+def on_new_drawing():
+    update_open_menu()
+
+previous_drawings.append(on_new_drawing)
 root.mainloop()
