@@ -6,21 +6,23 @@ from textblob import TextBlob
 import spacy
 import numpy as np
 
-# Load spaCy language model
+# Load spaCy model
 nlp = spacy.load('en_core_web_sm')
 
-# Define background colors
+# List of predefined background colors
 background_colors = ['#F0E68C', '#FFD700', '#FF6347', '#4682B4', '#5F9EA0', '#DDA0DD', '#F08080', '#B0C4DE']
+
+current_figure = None
 
 def analyze_text_and_generate_shape(text):
     # Analyze sentiment using TextBlob
     blob = TextBlob(text)
     sentiment = blob.sentiment.polarity
 
-    # Use spaCy for additional text processing
+    # Use spaCy for additional text processing (e.g., part-of-speech tagging)
     doc = nlp(text)
 
-    # Assign color based on sentiment polarity
+    # Determine color based on sentiment polarity
     if sentiment > 0.75:
         color = '#FFFF00'  # yellow
     elif sentiment > 0.5:
@@ -38,7 +40,7 @@ def analyze_text_and_generate_shape(text):
     else:
         color = '#00008B'  # dark blue
 
-    # Assign shape based on sentiment score
+    # Determine shape based on sentiment score
     if sentiment > 0.75:
         shape = 'star'
     elif sentiment > 0.5:
@@ -56,7 +58,7 @@ def analyze_text_and_generate_shape(text):
     else:
         shape = 'circle'
 
-    # Assign size based on the absolute value of sentiment polarity
+    # Determine size based on the absolute value of sentiment polarity
     if abs(sentiment) > 0.75:
         size = 3
     elif abs(sentiment) > 0.5:
@@ -64,14 +66,18 @@ def analyze_text_and_generate_shape(text):
     else:
         size = 1
 
-    # Select a background color
+    # Select a background color different from the shape's color
     background_color = np.random.choice([bg for bg in background_colors if bg != color])
 
     return color, shape, size, background_color
 
 def draw_shape(color, shape, size, background_color):
-    fig, ax = plt.subplots()
-    fig.patch.set_facecolor(background_color)
+    global current_figure
+    if current_figure:
+        plt.close(current_figure)
+    
+    current_figure, ax = plt.subplots()
+    current_figure.patch.set_facecolor(background_color)
     ax.set_aspect('equal')
     ax.axis('off')
 
@@ -97,13 +103,11 @@ def draw_shape(color, shape, size, background_color):
     ax.add_patch(polygon)
     plt.show()
 
-# Create Tkinter window
 def on_generate_button_click():
     text = simpledialog.askstring("Input", "Describe your mood and characteristics:", parent=root)
     if text:
         color, shape, size, background_color = analyze_text_and_generate_shape(text)
         draw_shape(color, shape, size, background_color)
-        root.destroy()
 
 # Create the main window
 root = tk.Tk()
