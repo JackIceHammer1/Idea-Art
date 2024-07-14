@@ -1,15 +1,23 @@
+import tkinter as tk
+from tkinter import simpledialog
 import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon, Circle, Ellipse, Polygon, Rectangle
-from textblob import TextBlob
+from transformers import pipeline
 import numpy as np
 
-def generate_color_shape_size():
-    user_text = input("Describe your mood, or insert any text: ").lower()
+# Load sentiment analysis pipeline from transformers
+sentiment_analysis = pipeline('sentiment-analysis')
 
-    # Analyze sentiment using TextBlob
-    blob = TextBlob(user_text)
-    sentiment = blob.sentiment.polarity  # Get sentiment polarity (-1 to 1)
-    subjectivity = blob.sentiment.subjectivity  # Get sentiment subjectivity (0 to 1)
+def analyze_text_and_generate_shape(text):
+    # Analyze sentiment using transformers
+    result = sentiment_analysis(text)[0]
+    label = result['label']
+    score = result['score']
+
+    if label == 'POSITIVE':
+        sentiment = score
+    else:
+        sentiment = -score
 
     # Determine color based on sentiment polarity
     if sentiment > 0.75:
@@ -29,25 +37,23 @@ def generate_color_shape_size():
     else:
         color = '#00008B'  # dark blue
 
-    # Determine shape based on nature of the text
-    if sentiment > 0.5 and subjectivity < 0.5:
-        shape = 'triangle'  # Positive and objective
-    elif sentiment > 0.5 and subjectivity >= 0.5:
-        shape = 'star'  # Positive and subjective
-    elif sentiment <= 0.5 and sentiment > 0 and subjectivity < 0.5:
-        shape = 'square'  # Slightly positive and objective
-    elif sentiment <= 0.5 and sentiment > 0 and subjectivity >= 0.5:
-        shape = 'circle'  # Slightly positive and subjective
-    elif sentiment <= 0 and sentiment > -0.5 and subjectivity < 0.5:
-        shape = 'ellipse'  # Slightly negative and objective
-    elif sentiment <= 0 and sentiment > -0.5 and subjectivity >= 0.5:
-        shape = 'pentagon'  # Slightly negative and subjective
-    elif sentiment <= -0.5 and subjectivity < 0.5:
-        shape = 'diamond'  # Negative and objective
-    elif sentiment <= -0.5 and subjectivity >= 0.5:
-        shape = 'hexagon'  # Negative and subjective
+    # Determine shape based on sentiment score
+    if sentiment > 0.75:
+        shape = 'star'
+    elif sentiment > 0.5:
+        shape = 'hexagon'
+    elif sentiment > 0.25:
+        shape = 'pentagon'
+    elif sentiment > 0:
+        shape = 'triangle'
+    elif sentiment > -0.25:
+        shape = 'square'
+    elif sentiment > -0.5:
+        shape = 'diamond'
+    elif sentiment > -0.75:
+        shape = 'ellipse'
     else:
-        shape = 'rectangle'  # Neutral or unknown
+        shape = 'circle'
 
     # Determine size based on the absolute value of sentiment polarity
     if abs(sentiment) > 0.75:
@@ -57,21 +63,17 @@ def generate_color_shape_size():
     else:
         size = 1
 
-    # Print the generated color, shape, and size
-    print(f"Based on your description,")
-    print(f"Your generated color is: {color}")
-    print(f"Your generated shape is: {shape}")
-    print(f"Your generated size is: {size}")
+    return color, shape, size
 
-    # Draw the shape with the specified color and size
+def draw_shape(color, shape, size):
     fig, ax = plt.subplots()
     ax.set_aspect('equal')
     ax.axis('off')
-    
+
     if shape == 'triangle':
         polygon = RegularPolygon((0.5, 0.5), numVertices=3, radius=size*0.1, color=color)
     elif shape == 'star':
-        polygon = RegularPolygon((0.5, 0.5), numVertices=5, radius=size*0.1, color=color)
+        polygon = RegularPolygon((0.5, 0.5), numVertices=5, radius=size*0.1, color=color, orientation=np.pi/10)
     elif shape == 'square':
         polygon = RegularPolygon((0.5, 0.5), numVertices=4, radius=size*0.1, color=color)
     elif shape == 'circle':
@@ -90,5 +92,19 @@ def generate_color_shape_size():
     ax.add_patch(polygon)
     plt.show()
 
-# Calling the function to generate color, shape, and size based on user input
-generate_color_shape_size()
+def on_generate_button_click():
+    text = simpledialog.askstring("Input", "Describe your mood and characteristics:")
+    if text:
+        color, shape, size = analyze_text_and_generate_shape(text)
+        draw_shape(color, shape, size)
+
+# Create the main window
+root = tk.Tk()
+root.title("Mood Shape Generator")
+
+# Create a button to generate shape
+generate_button = tk.Button(root, text="Generate Shape", command=on_generate_button_click)
+generate_button.pack(pady=20)
+
+# Start the GUI event loop
+root.mainloop()
