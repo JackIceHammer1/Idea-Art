@@ -6,10 +6,10 @@ from textblob import TextBlob
 import spacy
 import numpy as np
 
-# Load spaCy model
+# Load spaCy language model
 nlp = spacy.load('en_core_web_sm')
 
-# List of predefined background colors
+# Define background colors
 background_colors = ['#F0E68C', '#FFD700', '#FF6347', '#4682B4', '#5F9EA0', '#DDA0DD', '#F08080', '#B0C4DE']
 
 def analyze_text_and_generate_shape(text):
@@ -17,10 +17,10 @@ def analyze_text_and_generate_shape(text):
     blob = TextBlob(text)
     sentiment = blob.sentiment.polarity
 
-    # Use spaCy for additional text processing (e.g., part-of-speech tagging)
+    # Use spaCy for additional text processing
     doc = nlp(text)
 
-    # Determine color based on sentiment polarity
+    # Assign color based on sentiment polarity
     if sentiment > 0.75:
         color = '#FFFF00'  # yellow
     elif sentiment > 0.5:
@@ -38,7 +38,7 @@ def analyze_text_and_generate_shape(text):
     else:
         color = '#00008B'  # dark blue
 
-    # Determine shape based on sentiment score
+    # Assign shape based on sentiment score
     if sentiment > 0.75:
         shape = 'star'
     elif sentiment > 0.5:
@@ -56,7 +56,7 @@ def analyze_text_and_generate_shape(text):
     else:
         shape = 'circle'
 
-    # Determine size based on the absolute value of sentiment polarity
+    # Assign size based on the absolute value of sentiment polarity
     if abs(sentiment) > 0.75:
         size = 3
     elif abs(sentiment) > 0.5:
@@ -64,7 +64,7 @@ def analyze_text_and_generate_shape(text):
     else:
         size = 1
 
-    # Select a background color different from the shape's color
+    # Select a background color
     background_color = np.random.choice([bg for bg in background_colors if bg != color])
 
     return color, shape, size, background_color
@@ -97,6 +97,7 @@ def draw_shape(color, shape, size, background_color):
     ax.add_patch(polygon)
     plt.show()
 
+# Create Tkinter window
 def on_generate_button_click():
     text = simpledialog.askstring("Input", "Describe your mood and characteristics:", parent=root)
     if text:
