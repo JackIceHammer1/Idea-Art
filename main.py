@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+from matplotlib.patches import RegularPolygon, Circle, Ellipse, Polygon
 from textblob import TextBlob
 
 def generate_color_shape_size():
@@ -48,17 +50,44 @@ def generate_color_shape_size():
 
     # Determine size based on the absolute value of sentiment polarity
     if abs(sentiment) > 0.75:
-        size = 'large'
+        size = 3
     elif abs(sentiment) > 0.5:
-        size = 'medium'
+        size = 2
     else:
-        size = 'small'
+        size = 1
 
     # Print the generated color, shape, and size
     print(f"Based on your description,")
     print(f"Your generated color is: {color}")
     print(f"Your generated shape is: {shape}")
     print(f"Your generated size is: {size}")
+
+    # Draw the shape with the specified color and size
+    fig, ax = plt.subplots()
+    ax.set_aspect('equal')
+    ax.axis('off')
+    
+    if shape == 'triangle':
+        polygon = RegularPolygon((0.5, 0.5), numVertices=3, radius=size*0.1, color=color)
+    elif shape == 'star':
+        polygon = RegularPolygon((0.5, 0.5), numVertices=5, radius=size*0.1, color=color)
+    elif shape == 'square':
+        polygon = RegularPolygon((0.5, 0.5), numVertices=4, radius=size*0.1, color=color)
+    elif shape == 'circle':
+        polygon = Circle((0.5, 0.5), radius=size*0.1, color=color)
+    elif shape == 'ellipse':
+        polygon = Ellipse((0.5, 0.5), width=size*0.2, height=size*0.1, color=color)
+    elif shape == 'pentagon':
+        polygon = RegularPolygon((0.5, 0.5), numVertices=5, radius=size*0.1, color=color)
+    elif shape == 'diamond':
+        polygon = RegularPolygon((0.5, 0.5), numVertices=4, radius=size*0.1, color=color, orientation=np.pi/4)
+    elif shape == 'hexagon':
+        polygon = RegularPolygon((0.5, 0.5), numVertices=6, radius=size*0.1, color=color)
+    elif shape == 'rectangle':
+        polygon = Rectangle((0.4, 0.4), width=size*0.2, height=size*0.1, color=color)
+    
+    ax.add_patch(polygon)
+    plt.show()
 
 # Calling the function to generate color, shape, and size based on user input
 generate_color_shape_size()
