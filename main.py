@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
-from matplotlib.patches import RegularPolygon, Circle, Ellipse, Polygon
+from matplotlib.patches import RegularPolygon, Circle, Ellipse, Polygon, Rectangle
 from textblob import TextBlob
+import numpy as np
 
 def generate_color_shape_size():
-    user_text = input("Describe your mood and characteristics: ").lower()
+    user_text = input("Describe your mood, or insert any text: ").lower()
 
     # Analyze sentiment using TextBlob
     blob = TextBlob(user_text)
@@ -12,21 +13,21 @@ def generate_color_shape_size():
 
     # Determine color based on sentiment polarity
     if sentiment > 0.75:
-        color = 'yellow'
+        color = '#FFFF00'  # yellow
     elif sentiment > 0.5:
-        color = 'orange'
+        color = '#FFA500'  # orange
     elif sentiment > 0.25:
-        color = 'light green'
+        color = '#90EE90'  # light green
     elif sentiment > 0:
-        color = 'green'
+        color = '#008000'  # green
     elif sentiment > -0.25:
-        color = 'light blue'
+        color = '#ADD8E6'  # light blue
     elif sentiment > -0.5:
-        color = 'blue'
+        color = '#0000FF'  # blue
     elif sentiment > -0.75:
-        color = 'purple'
+        color = '#800080'  # purple
     else:
-        color = 'dark blue'
+        color = '#00008B'  # dark blue
 
     # Determine shape based on nature of the text
     if sentiment > 0.5 and subjectivity < 0.5:
